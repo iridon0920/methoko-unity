@@ -1,26 +1,53 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+orbs:
+  unity: game-ci/unity@1.4.0
+  aws-s3: circleci/aws-s3@3.1
+ 
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+  build:
+    executor:
+      name: "unity/ubuntu"
+      target_platform: "webgl"
+      editor_version: "2021.3.9f1"
+      resource_class: "large"
     steps:
       - checkout
-      - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+      - unity/prepare-env:
+          unity-license-var-name: "UNITY_ENCODED_LICENSE"
+          unity-username-var-name: "UNITY_USERNAME"
+          unity-password-var-name: "UNITY_PASSWORD"
+      - unity/build:
+          project-path: "src"
+          build-target: "WebGL"
+          build-method: "Builder.Build"
+          compress: false
+          store-artifacts: false
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "src/Builds/WebGL"
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+  deploy:
+    docker:
+      - image: cimg/aws:2022.11
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: ls
+      - aws-s3/sync:
+          aws-region: "AWS_REGION"
+          role-arn: $AWS_ROLE_ARN
+          from: "src/Builds/WebGL/WebGL"
+          to: 's3://unity-circleci'
+
 workflows:
-  say-hello-workflow:
+  build-unity-project:
     jobs:
-      - say-hello
+      - build:
+          context: unity
+      - deploy:
+          requires:
+            - build
+          context: aws
