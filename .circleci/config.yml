@@ -38,7 +38,7 @@ jobs:
           aws-region: "AWS_REGION"
           role-arn: $AWS_ROLE_ARN
           from: "ServerData"
-          to: 's3://test-569583795568'
+          to: 's3://unity-test-569583795568'
 
 workflows:
   build-unity-project:
