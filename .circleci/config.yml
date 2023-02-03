@@ -22,11 +22,10 @@ jobs:
           build-method: "Builder.Build"
           compress: false
           store-artifacts: false
-      - run: ls -R
       - persist_to_workspace:
           root: .
           paths:
-            - "Builds"
+            - "Build"
 
   deploy:
     docker:
@@ -38,7 +37,7 @@ jobs:
       - aws-s3/sync:
           aws-region: "AWS_REGION"
           role-arn: $AWS_ROLE_ARN
-          from: "Builds"
+          from: "Build"
           to: 's3://unity-circleci'
 
 workflows:
