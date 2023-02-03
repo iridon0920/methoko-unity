@@ -22,6 +22,7 @@ jobs:
           build-method: "Builder.Build"
           compress: false
           store-artifacts: false
+      - run: ls 
       - persist_to_workspace:
           root: .
           paths:
