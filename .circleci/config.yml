@@ -25,7 +25,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - "Build"
+            - "ServerData"
 
   deploy:
     docker:
@@ -37,8 +37,8 @@ jobs:
       - aws-s3/sync:
           aws-region: "AWS_REGION"
           role-arn: $AWS_ROLE_ARN
-          from: "Build"
-          to: 's3://unity-circleci'
+          from: "ServerData"
+          to: 's3://unity-test-569583795568'
 
 workflows:
   build-unity-project:
