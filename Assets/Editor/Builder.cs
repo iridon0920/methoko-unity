@@ -12,8 +12,8 @@ public class Builder
         };
         var options = new BuildPlayerOptions
         {
-            target = BuildTarget.StandaloneWindows64,
-            locationPathName = "Build/Test.exe",
+            target = BuildTarget.WebGL,
+            locationPathName = "./Build",
             scenes = scenes
         };
         BuildPipeline.BuildPlayer(options);
